@@ -1,0 +1,28 @@
+version: '3'
+
+services:
+  postgres:
+    image: postgres:latest
+    container_name: my_postgres
+    environment:
+      POSTGRES_USER: your_postgres_user
+      POSTGRES_PASSWORD: your_postgres_password
+      POSTGRES_DB: your_database_name
+    ports:
+      - "5432:5432"
+    networks:
+      - my_network
+
+  adminer:
+    image: adminer:latest
+    container_name: my_adminer
+    ports:
+      - "8080:8080"
+    networks:
+      - my_network
+    depends_on:
+      - postgres
+
+networks:
+  my_network:
+    driver: bridge

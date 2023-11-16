@@ -44,3 +44,13 @@ for item in lst_of_products_and_prices:
     product_name, product_price = item.rsplit(' - ', 1)
     product_dict[product_name] = float(product_price)
 
+
+def get_products():
+    products_list = []
+    for item in lst_of_products_and_prices:
+        product_name, product_price = item.rsplit(' - ', 1)
+        product_dict = {'name': product_name, 'price': float(product_price)}
+        # product_dict[product_name] = float(product_price)
+        products_list.append(product_dict)
+        
+    return products_list

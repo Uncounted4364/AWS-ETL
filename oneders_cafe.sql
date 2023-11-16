@@ -1,5 +1,5 @@
 DROP DATABASE IF EXISTS oneders_cafe;
-CREATE DATABASE oneder_scafe;
+CREATE DATABASE oneders_cafe;
 use oneders_cafe;
 
 CREATE TABLE products (
@@ -9,16 +9,6 @@ CREATE TABLE products (
     PRIMARY KEY(productID)
 )
 
-CREATE TABLE transactions (
-    orderID INT NOT NULL AUTO_INCREMENT,
-    branchID INT NOT NULL AUTO_INCREMENT,
-    payment_typeID INT NOT NULL AUTO_INCREMENT,
-    total_cost decimal (10, 2),
-    order_date date,
-    PRIMARY KEY (orderID)
-    FOREIGN KEY (branchID) REFERENCES branch(branchID)
-    FOREIGN KEY (payment_typeID)REFERENCES payment_type(payment_typeID)
-)
 CREATE TABLE payment_type(
    payment_typeID INT NOT NULL AUTO_INCREMENT,
    type_name VARCHAR(255) NOT NULL,
@@ -31,12 +21,23 @@ CREATE TABLE branch (
     PRIMARY KEY (branchID)
 )
 
+CREATE TABLE transactions (
+    orderID INT NOT NULL AUTO_INCREMENT,
+    branchID INT NOT NULL,
+    payment_typeID INT NOT NULL,
+    total_cost decimal (10, 2) NOT NULL,
+    order_datetime datetime NOT NULL,
+    PRIMARY KEY (orderID),
+    FOREIGN KEY (branchID) REFERENCES branch(branchID),
+    FOREIGN KEY (payment_typeID)REFERENCES payment_type(payment_typeID)
+)
+
 CREATE TABLE basket (
     orderID INT NOT NULL,
     productID INT NOT NULL,
     quantity INT NOT NULL,
-    PRIMARY KEY (orderID, productID)
-    FOREIGN KEY (orderID) REFERENCES transactions(orderID)
+    PRIMARY KEY (orderID, productID),
+    FOREIGN KEY (orderID) REFERENCES transactions(orderID),
     FOREIGN KEY (productID) REFERENCES products(productID)
 )
 

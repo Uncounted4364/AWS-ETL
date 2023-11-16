@@ -7,19 +7,19 @@ CREATE TABLE products (
     product_name VARCHAR(255) NOT NULL,
     product_price DECIMAL(10,2) NOT NULL,
     PRIMARY KEY(productID)
-)
+);
 
 CREATE TABLE payment_type(
    payment_typeID INT NOT NULL AUTO_INCREMENT,
    type_name VARCHAR(255) NOT NULL,
    PRIMARY KEY (payment_typeID)
-)
+);
 
 CREATE TABLE branch (
     branchID INT NOT NULL AUTO_INCREMENT,
     branch_name VARCHAR(100) NOT NULL,
     PRIMARY KEY (branchID)
-)
+);
 
 CREATE TABLE transactions (
     orderID INT NOT NULL AUTO_INCREMENT,
@@ -30,7 +30,7 @@ CREATE TABLE transactions (
     PRIMARY KEY (orderID),
     FOREIGN KEY (branchID) REFERENCES branch(branchID),
     FOREIGN KEY (payment_typeID)REFERENCES payment_type(payment_typeID)
-)
+);
 
 CREATE TABLE basket (
     orderID INT NOT NULL,
@@ -39,5 +39,5 @@ CREATE TABLE basket (
     PRIMARY KEY (orderID, productID),
     FOREIGN KEY (orderID) REFERENCES transactions(orderID),
     FOREIGN KEY (productID) REFERENCES products(productID)
-)
+);
 

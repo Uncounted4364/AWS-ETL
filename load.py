@@ -3,23 +3,14 @@ from unique_branches import get_unique_branches
 from normalise_clean_data import get_normalised_transactions
 from datetime import datetime
 
+import pymysql
+import os
+from dotenv import load_dotenv
+
 products = get_products()
 branches = get_unique_branches()
 payment_types = ['CASH', 'CARD']
 transactions = get_normalised_transactions()
-# print(len(transactions))
-
-# print(branches)
-
-# print(len(products))
-# for transaction in transactions:
-#     print(transaction)
-    
-# print(branches)
-
-import pymysql
-import os
-from dotenv import load_dotenv
 
 # Load environment variables from .env file
 load_dotenv()
@@ -111,10 +102,10 @@ def insert_transactions_db(transactions):
             total_cost = transaction['total']
         
             # Format the date as needed
-            formatted_date = datetime.strptime(transaction['date'], '%d/%m/%Y %H:%M')
-            # formatted_date = date_object.strftime('%Y-%m-%d %H:%M')
+            date_object = datetime.strptime(transaction['date'], '%d/%m/%Y %H:%M')
+            formatted_date = date_object.strftime('%Y-%m-%d %H:%M')
             
-            sql = """INSERT transactions (branchID, payment_typeID, total_cost, order_datetime) VALUES (%s, %s, %s, format(%s, 'yyyy-mm-dd hh:mm')"""
+            sql = """INSERT transactions (branchID, payment_typeID, total_cost, order_datetime) VALUES (%s, %s, %s, %s)"""
             data = (branch_id, payment_type_id, total_cost, formatted_date)
             cursor.execute(sql, data)
             connection.commit()
@@ -140,3 +131,15 @@ insert_transactions_db(transactions)
 # WHERE basket.quantity > 1
 
 #INSERT transactions (branchID, payment_typeID, total_cost, order_datetime) VALUES (1, 2, 2.30, format(2021-08-25 09:00, 'yyyy-mm-dd hh:mm'))
+
+############# remove everything from db ###############
+# delete from transactions;
+# ALTER TABLE transactions AUTO_INCREMENT = 1;
+# delete from branch;
+# ALTER TABLE branch AUTO_INCREMENT = 1;
+
+# delete from payment_type;
+# ALTER TABLE payment_type AUTO_INCREMENT = 1;
+
+# delete from products;
+# ALTER TABLE products AUTO_INCREMENT = 1;

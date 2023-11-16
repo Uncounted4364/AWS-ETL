@@ -10,6 +10,6 @@ as a whole, the client will drastically increase their ability to identify compa
 
 The solution has been made, Our ETL pipeline runs smoothly, has been unit tested and meets all the ticket requirements generated.
 
-# To make the solution more efficient and offer a better service to customers at the same time, We wish we could have the following in the dataset;
+ To make the solution more efficient and offer a better service to customers at the same time, We wish we could have the following in the dataset;
 - refunds cancellation
-- other payment options (voucher, bitcoin, cheques).
+- other payment options (voucher, cryptocurrencies, cheques).

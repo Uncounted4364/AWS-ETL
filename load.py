@@ -113,11 +113,31 @@ def insert_transactions_db(transactions):
             transaction['order_id'] = cursor.lastrowid
             
         cursor.close()
+        return transactions
     
     except Exception as ex:
         print('Failed to:', ex)
 
-insert_transactions_db(transactions)
+transactions = insert_transactions_db(transactions)
+
+def insert_basket_db(transactions):
+    try:
+        connection, cursor = setup_db_connection()
+        for transaction in transactions:
+            order_id= transaction["order_id"]
+            for current_product in transaction["basket"]:
+                product_id= next(product["product_id"] for product in products if product["name"] == current_product["product"])
+                quantity= current_product["quantity"]
+                sql = """INSERT basket (orderID,productID,quantity) VALUES (%s,%s,%s)"""
+                data=(order_id,product_id,quantity)
+                cursor.execute(sql,data)
+                connection.commit()
+        cursor.close()
+    except Exception as ex:
+        print('Failed to:', ex)
+        
+        
+insert_basket_db(transactions)
 
 # for transaction in transactions:
 #     print(transaction)
@@ -133,6 +153,8 @@ insert_transactions_db(transactions)
 #INSERT transactions (branchID, payment_typeID, total_cost, order_datetime) VALUES (1, 2, 2.30, format(2021-08-25 09:00, 'yyyy-mm-dd hh:mm'))
 
 ############# remove everything from db ###############
+# delete from basket;
+
 # delete from transactions;
 # ALTER TABLE transactions AUTO_INCREMENT = 1;
 # delete from branch;

@@ -13,3 +13,13 @@ The solution has been made, Our ETL pipeline runs smoothly, has been unit tested
  To make the solution more efficient and offer a better service to customers at the same time, We wish we could have the following in the dataset;
 - refunds cancellation
 - other payment options (voucher, cryptocurrencies, cheques).
+
+# Client requirements for Sprint 2 - Move To Cloud (AWS & Lambda)
+Setup AWS Lambda that will deploy and run without being plugged into the data flow
+We'll be using CloudFormation (after session on Thursday)
+Hook lambda up to S3 and Redshift
+
+Weve been able to;
+- Setup AWS Lambda that will deploy and run without being plugged into the data flow.
+- Connect Lambda up to S3. 
+- Created bash scripts to run Yaml files for Cloudformation

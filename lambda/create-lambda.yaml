@@ -33,11 +33,11 @@ Resources:
     Type: AWS::Lambda::Function
     Properties:
       Runtime: python3.9
-      Handler: extract_transform_data.handler
+      Handler: extract_transform_data.lambda_handler
       Role: !GetAtt LambdaFunctionRole.Arn
       Code:
         S3Bucket: onedersdeployment
-        S3Key: extract_transform_data.py
+        S3Key: extract_transform_data.zip
 
 
   S3Bucket:

@@ -40,14 +40,14 @@ Resources:
         S3Key: extract_transform_data.zip
 
 
-  S3Bucket:
-    Type: 'AWS::S3::Bucket'
-    Properties:
-      BucketName: de-lon11-oneder-cafe-data
-      NotificationConfiguration:
-        LambdaConfigurations:
-          - Event: s3:ObjectCreated:*
-            Function: !GetAtt LambdaFunction.Arn
+  # S3Bucket:
+  #   Type: 'AWS::S3::Bucket'
+  #   Properties:
+  #     BucketName: oneders-dirty-data-bucket
+  #     NotificationConfiguration:
+  #       LambdaConfigurations:
+  #         - Event: s3:ObjectCreated:*
+  #           Function: !GetAtt LambdaFunction.Arn
 
   S3BucketPermission:
     Type: AWS::Lambda::Permission
@@ -55,4 +55,7 @@ Resources:
       Action: lambda:InvokeFunction
       FunctionName: !Ref LambdaFunction
       Principal: s3.amazonaws.com
-      SourceArn: !GetAtt S3Bucket.Arn
+      SourceArn: arn:aws:s3:::onedersdata
+
+#Notes: So, the old version of this was trying to create a new s3 bucket-the part of the code i've hasshed out in lines 43 to 50. Upon learning this, i tried to make a new bucket, but that too was throwing up erros.
+#So, i hashhed it out and then had to change code on line 58, where i now tell it ondersdata is the bucket i want the lambda funtion to get triggered off. This verison of the .yaml has created a stack called stack 16.

@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: >
-  Template to deploy a lambda which is triggered by an S3 event.
+  Template to deploy a lambda which is triggered by an S3 event from the de-lon11-oneder-cafe-data bucket.
 
 Resources:
   LambdaFunctionRole:
@@ -17,6 +17,8 @@ Resources:
             - sts:AssumeRole
       Path: "/"
       PermissionsBoundary: !Sub arn:aws:iam::${AWS::AccountId}:policy/ScopePermissions
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonS3FullAccess
       Policies:
       - PolicyName: LambdaLogsPolicy
         PolicyDocument:
@@ -40,22 +42,35 @@ Resources:
         S3Key: extract_transform_data.zip
 
 
-  # S3Bucket:
-  #   Type: 'AWS::S3::Bucket'
-  #   Properties:
-  #     BucketName: oneders-dirty-data-bucket
-  #     NotificationConfiguration:
-  #       LambdaConfigurations:
-  #         - Event: s3:ObjectCreated:*
-  #           Function: !GetAtt LambdaFunction.Arn
+  S3Bucket:
+    Type: 'AWS::S3::Bucket'
+    DependsOn: S3BucketPermission 
+    Properties:
+      BucketName: oneders-dirty-data-bucket2
+      NotificationConfiguration:
+        LambdaConfigurations:
+          - Event: s3:ObjectCreated:*
+            Function: !GetAtt LambdaFunction.Arn
 
+  # S3BucketPermission:
+  #   Type: AWS::Lambda::Permission
+  #   Properties: 
+  #     Action: lambda:InvokeFunction
+  #     FunctionName: !Ref LambdaFunction
+  #     Principal: s3.amazonaws.com
+  #     SourceArn: arn:aws:s3:::de-lon11-oneder-cafe-data
+
+
+    
   S3BucketPermission:
     Type: AWS::Lambda::Permission
     Properties: 
       Action: lambda:InvokeFunction
-      FunctionName: !Ref LambdaFunction
+      FunctionName: !GetAtt LambdaFunction.Arn
       Principal: s3.amazonaws.com
-      SourceArn: arn:aws:s3:::onedersdata
+      SourceAccount: !Ref "AWS::AccountId"
+      SourceArn: arn:aws:s3:::oneders-dirty-data-bucket2
+
 
 #Notes: So, the old version of this was trying to create a new s3 bucket-the part of the code i've hasshed out in lines 43 to 50. Upon learning this, i tried to make a new bucket, but that too was throwing up erros.
 #So, i hashhed it out and then had to change code on line 58, where i now tell it ondersdata is the bucket i want the lambda funtion to get triggered off. This verison of the .yaml has created a stack called stack 16.

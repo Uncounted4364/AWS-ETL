@@ -6,6 +6,8 @@ from datetime import datetime
 import psycopg2
 import os
 from dotenv import load_dotenv
+import uuid
+
 
 # Load data from external files or functions
 products = get_products()
@@ -19,6 +21,9 @@ host_name = os.environ.get("pg_host")
 database_name = os.environ.get("pg_db")
 user_name = os.environ.get("pg_user")
 user_password = os.environ.get("pg_pass")
+
+def generate_unique_id():
+    return str(uuid.uuid4())
 
 def setup_db_connection():
     # Establish a connection and create a cursor
@@ -38,13 +43,26 @@ def insert_products_db(products):
         
         # Insert products into the 'products' table
         for product in products:
-            sql = """INSERT INTO products (product_name, product_price) VALUES (%s, %s) RETURNING productID"""
+            # Check if the product already exists
+            check_sql = "SELECT productID FROM products WHERE product_name = %s AND product_price = %s"
             data_values = (product['name'], product['price'])
-            
-            cursor.execute(sql, data_values)
-            # Fetch the last inserted product_id
-            product['product_id'] = cursor.fetchone()[0]
-            connection.commit()
+
+            cursor.execute(check_sql, data_values)
+            existing_product_id = cursor.fetchone()
+           
+            if existing_product_id is None:
+                # If the product doesn't exist, insert it
+                product_id = generate_unique_id()
+                insert_sql = """INSERT INTO products (productID, product_name, product_price) VALUES (%s, %s, %s)"""
+                
+                cursor.execute(insert_sql, (product_id, product['name'], product['price']))
+                
+                # Fetch the last inserted product_id
+                product['product_id'] = product_id
+                connection.commit()
+                
+            else:
+                product['product_id'] = existing_product_id
         
         cursor.close()
         
@@ -62,11 +80,23 @@ def insert_branches_db(branches):
         
         # Insert branches into the 'branch' table
         for branch in branches:
-            sql = """INSERT INTO branch (branch_name) VALUES (%s) RETURNING branchID"""
-            cursor.execute(sql, (branch['branch_name'],))
-            # Fetch the last inserted branch_id
-            branch['branch_id'] = cursor.fetchone()[0]
-            connection.commit()
+            # Check if the branch already exists
+            check_sql = "SELECT branchID FROM branch WHERE branch_name = %s"
+            # data_values = (branch['branch_name'], product['price'])
+            
+            cursor.execute(check_sql, (branch['branch_name'],))
+            existing_branch_id = cursor.fetchone()
+            
+            if existing_branch_id is None:
+                # If the product doesn't exist, insert it
+                branch_id = generate_unique_id()            
+                insert_sql = """INSERT INTO branch (branchID, branch_name) VALUES (%s, %s)"""
+                cursor.execute(insert_sql, (branch_id, branch['branch_name']))
+                # Fetch the last inserted branch_id
+                branch['branch_id'] = branch_id
+                connection.commit()
+            else:
+                branch['branch_id'] = existing_branch_id
         
         cursor.close()
         
@@ -85,12 +115,20 @@ def insert_payment_type_db(payment_types):
         
         # Insert payment types into the 'payment_type' table
         for i in range(len(payment_types)):
-            sql = """INSERT INTO payment_type (type_name) VALUES (%s) RETURNING payment_typeID"""
-            cursor.execute(sql, (payment_types[i],))
-            # Fetch the last inserted payment_type_id
-            payment_types[i] = {'payment_type_id': cursor.fetchone()[0], 'type_name': payment_types[i]}
-            connection.commit()
-        
+            # Check if the payment_type already exists
+            check_sql = "SELECT payment_typeID FROM payment_type WHERE type_name = %s"
+            cursor.execute(check_sql, (payment_types[i],))
+            existing_type_id = cursor.fetchone()
+            
+            if existing_type_id == None:
+                type_id = generate_unique_id()
+                sql = """INSERT INTO payment_type (payment_typeID, type_name) VALUES (%s, %s)"""
+                cursor.execute(sql, (type_id, payment_types[i]))
+                # Fetch the last inserted payment_type_id
+                payment_types[i] = {'payment_type_id': type_id, 'type_name': payment_types[i]}
+                connection.commit()
+            else:
+                payment_types[i] = {'payment_type_id': existing_type_id, 'type_name': payment_types[i]}
         cursor.close()
         
         return payment_types            
@@ -119,11 +157,12 @@ def insert_transactions_db(transactions):
             formatted_date = date_object.strftime('%Y-%m-%d %H:%M')
             
             # Insert transaction data into the 'transactions' table
-            sql = """INSERT INTO transactions (branchID, payment_typeID, total_cost, order_datetime) VALUES (%s, %s, %s, %s) RETURNING orderID"""
-            data = (branch_id, payment_type_id, total_cost, formatted_date)
+            order_id = generate_unique_id()
+            sql = """INSERT INTO transactions (orderID, branchID, payment_typeID, total_cost, order_datetime) VALUES (%s, %s, %s, %s, %s)"""
+            data = (order_id, branch_id, payment_type_id, total_cost, formatted_date)
             cursor.execute(sql, data)
             # Fetch the last inserted order_id
-            transaction['order_id'] = cursor.fetchone()[0]
+            transaction['order_id'] = order_id
             connection.commit()
             
         cursor.close()
@@ -149,9 +188,13 @@ def insert_basket_db(transactions):
                 data = (order_id, product_id, quantity)
                 cursor.execute(sql, data)
                 connection.commit()
+        cursor.execute('select * from products;')
+        returned_products = cursor.fetchone()
+        print(returned_products)
         cursor.close()
     except Exception as ex:
         print('Failed to:', ex)
 
 # Call the function to insert basket data into the database
 insert_basket_db(transactions)
+
